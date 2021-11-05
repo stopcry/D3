@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>人口变化</title>
+
+    <script type="text/javascript" src="/D3/d3.js"></script>
+    <style>
+        div.clear {
+            background-color: rgb(218, 218, 218);
+            border: 1px dashed;
+            font-size: 10px;
+            width: auto;
+            height: auto;
+        }
+        
+        div.cell {
+            border: 1px solid rgb(136, 136, 136);
+            width: 60px;
+            height: 40px;
+            height: auto;
+            text-align: center;
+            margin-left: 10px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <!--select-->
+    <div id="alphabet" class="clear">
+        <span>Ordinal Scale with Alphabet<br></span>
+        <span>Mapping [1..10] to ["a".."j"]<br></span>
+    </div>
+    <div id="category10" class="clear">
+        <span>Ordinal Color Scale Category 10<br></span>
+        <span>Mapping [1..10] to category 10 colors<br></span>
+    </div>
+    <div id="Accent" class="clear">
+        <span>Ordinal Color Scale Accent<br></span>
+        <span>Mapping [1..10] to Accent colors<br></span>
+    </div>
+    <div id="Dark2" class="clear">
+        <span>Ordinal Color Scale Dark2<br></span>
+        <span>Mapping [1..10] to Dark2 colors<br></span>
+    </div>
+    <div id="Paired" class="clear">
+        <span>Ordinal Color Scale Paired<br></span>
+        <span>Mapping [1..10] to Paired colors<br></span>
+    </div>
+
+    <script type="text/javascript">
+        var max = 10,
+            data = [];
+
+        for (var i = 1; i < max; ++i) data.push(i);
+        var alphabet = d3.scaleOrdinal()
+            .domain(data)
+            .range(["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]);
+
+        function render(data, scale, selector) {
+            d3.select(selector).selectAll("div.cell")
+                .data(data)
+                .enter().append("div").classed("cell", true);
+
+            d3.select(selector).selectAll("div.cell")
+                .data(data)
+                .exit().remove();
+
+            d3.select(selector).selectAll("div.cell")
+                .data(data)
+                .style("display", "inline-block")
+                .style("background-color", function(d) {
+                    return scale(d).indexOf("#") >= 0 ? scale(d) : "white";
+                })
+                .text(function(d) {
+                    return scale(d);
+                });
+        }
+        render(data, alphabet, "#alphabet");
+        render(data, d3.scaleOrdinal(d3.schemeCategory10), "#category10");
+        render(data, d3.scaleOrdinal(d3.schemeAccent), "#Accent");
+        render(data, d3.scaleOrdinal(d3.schemeDark2), "#Dark2");
+        render(data, d3.scaleOrdinal(d3.schemePaired), "#Paired");
+    </script>
+
+</body>
+
+</html>
