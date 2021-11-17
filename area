@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>数剧</title>
+
+    <script type="text/javascript" src="/D3/d3.js"></script>
+    <style>
+        div.v-bar {
+            width: 20px;
+            margin: 0;
+            border: 1px solid #000;
+        }
+        
+        div.fixed-cell {
+            border: solid 1px rgb(138, 138, 138);
+            width: 100px;
+            height: 60px;
+            text-align: center;
+            line-height: 60px;
+        }
+    </style>
+</head>
+
+<body>
+    <script type="text/javascript">
+        var width = 500,
+            height = 500,
+            margin = 30,
+            duration = 500,
+            x = d3.scaleLinear()
+            .domain([0, 10])
+            .range([margin, width - margin]),
+            y = d3.scaleLinear()
+            .domain([0, 10])
+            .range([margin, height - margin]);
+
+        var data = d3.range(11).map(function(i) {
+            return {
+                x: i,
+                y: Math.sin(i) * 3 + 5
+            };
+        });
+
+        var svg = d3.select("body").append("svg");
+
+        svg.attr("width", width)
+            .attr("height", height);
+
+        renderAxis(svg);
+
+        render("linear");
+
+        renderDots(svg);
+
+        function render(mode) {
+            var line = d3.line()
+                .x(function(d) {
+                    return x(d.x);
+                })
+                .y(function(d) {
+                    return y(d.y);
+                });
+
+            svg.selectAll("path.line")
+                .data([data]) //绑定tension，生成一条曲线。
+                .enter()
+                .append("path")
+                .attr("class", "line");
+
+            svg.selectAll("path.line")
+                .data([data])
+                .transition().duration(duration).ease(d3.easeLinear)
+                .attr("d", function(d) {
+                    return line(d); //绑定data，拉入数据集所有节点。
+                })
+                .attr("stroke", "black") //svg中的path默认会对闭合区域进行填充
+                .attr("fill", "none"); //如果结果要求是线条，需要设置填充区域为空值。
+
+            var area = d3.area()
+                .x(function(d) {
+                    return x(d.x);
+                })
+                .y1(function(d) {
+                    return y(d.y);
+                })
+                .y0(height - margin); //默认为y0(y(0))。area为y0和y1之间的区域。。
+
+            svg.selectAll("path.area")
+                .data([data])
+                .enter()
+                .append("path")
+                .attr("class", "area")
+                .attr("d", function(d) {
+                    return area(d);
+                })
+                .attr("fill", "grey");
+        }
+
+        function renderDots(svg) {
+            svg.selectAll("circle")
+                .data(data)
+                .enter().append("circle")
+                .attr("class", "dot")
+                .attr("cx", function(d) {
+                    return x(d.x);
+                })
+                .attr("cy", function(d) {
+                    return y(d.y);
+                })
+                .attr("r", 4.5)
+                .attr("fill", "white")
+                .attr("stroke", "black");
+        }
+
+        function renderAxis(svg) {
+            var axisWidth = width - 2 * margin,
+                axisHeight = height - 2 * margin;
+
+            var xScale = d3.scaleLinear()
+                .domain([0, 10])
+                .range([0, axisWidth]);
+
+            var yScale = d3.scaleLinear()
+                .domain([0, 1])
+                .range([axisHeight, 0]);
+
+            var subScale = d3.scaleLinear()
+                .domain([0, 5])
+                .range([0, axisWidth / 5]);
+
+            var xAxis = d3.axisBottom()
+                .scale(xScale);
+
+            svg.append("g")
+                .attr("class", "x-axis")
+                .attr("transform", function() {
+                    return "translate(" + margin + "," + (height - margin) + ")";
+                })
+                .call(xAxis);
+
+            var yAxis = d3.axisLeft()
+                .scale(yScale);
+
+            svg.append("g")
+                .attr("class", "y-axis")
+                .attr("transform", function() {
+                    return "translate(" + margin + "," + margin + ")";
+                })
+                .call(yAxis);
+        }
+    </script>
+</body>
+
+</html>
